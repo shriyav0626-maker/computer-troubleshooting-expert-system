@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if message %}
+  <div class="alert alert-warn" role="alert">{{ message }}</div>
+{% endif %}
+
+<section class="hero">
+  <h1>{{ app_title }}</h1>
+  <p class="lead">
+    Describe your computer problem by answering a few simple questions. The system applies
+    IF–THEN rules to find the most likely cause and shows you safe, step-by-step fixes.
+  </p>
+  <a class="btn btn-primary btn-large" href="#categories">Start Troubleshooting</a>
+  <ul class="stats">
+    <li><strong>{{ categories|length }}</strong> problem categories</li>
+    <li><strong>{{ rule_count }}</strong> IF–THEN rules</li>
+    <li><strong>0</strong> paid services</li>
+  </ul>
+</section>
+
+<section id="categories">
+  <h2 class="section-title">What is the problem?</h2>
+  <div class="card-grid">
+    {% for c in categories %}
+    <a class="card" href="{{ url_for('start', category_id=c.id) }}">
+      <span class="card-icon" aria-hidden="true">{{ c.icon }}</span>
+      <h3>{{ c.title }}</h3>
+      <p>{{ c.description }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="panel panel-light about">
+  <h2>How it works</h2>
+  <div class="about-grid">
+    <div><h3>📚 Knowledge base</h3><p>Stores problems, symptoms, rules, and solutions.</p></div>
+    <div><h3>⚙️ Inference engine</h3><p>Uses forward chaining to match your answers with the rules.</p></div>
+    <div><h3>💬 Explanation</h3><p>Shows which of your answers led to the suggestion.</p></div>
+  </div>
+  <p class="small-note">
+    This is a traditional knowledge-based expert system. It is <strong>not</strong> a trained
+    machine-learning model and it does not use generative AI.
+  </p>
+</section>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Result - {{ app_title }}{% endblock %}
+
+{% block content %}
+{% if result.urgent %}
+<div class="alert alert-danger" role="alert">
+  <strong>⚠ Safety warning:</strong> this may be dangerous. Follow the safety steps below before doing anything else.
+</div>
+{% endif %}
+
+<section class="panel result-header {% if result.urgent %}result-urgent{% elif result.found %}result-ok{% else %}result-unknown{% endif %}">
+  <p class="eyebrow"><span aria-hidden="true">{{ category.icon }}</span> {{ category.title }}</p>
+  <p class="step-label">{% if result.found %}Most likely cause{% else %}No confident diagnosis{% endif %}</p>
+  <h1 class="cause">{{ result.cause }}</h1>
+  <p class="confidence">
+    Confidence:
+    <span class="pill pill-conf-{{ result.confidence|lower|replace(' ', '-') }}">{{ result.confidence }}</span>
+    <span class="small-note">This shows how specific the matching rule is. It is not a guarantee.</span>
+  </p>
+</section>
+
+{% for note in result.notes %}
+<div class="alert alert-info">{{ note }}</div>
+{% endfor %}
+
+<section class="panel">
+  <h2>
+    {% if result.urgent %}What to do now
+    {% elif result.found %}Troubleshooting steps <span class="small-note">(try them in order)</span>
+    {% else %}What you can try{% endif %}
+  </h2>
+  <ol class="steps">
+    {% for step in result.steps %}
+    <li>{{ step }}</li>
+    {% endfor %}
+  </ol>
+</section>
+
+<section class="panel panel-light">
+  <h2>{% if result.found %}Why was this suggested?{% else %}Your answers{% endif %}</h2>
+  {% if not result.found %}
+    <p>Your answers did not completely match any rule, so the system cannot name a cause with confidence.</p>
+  {% endif %}
+  {% if result.explanation %}
+  <ul class="explain">
+    {% for item in result.explanation %}
+    <li>
+      <span>{{ item.question }}</span>
+      <strong class="pill pill-{{ item.answer|lower|replace(' ', '-') }}">{{ item.answer }}</strong>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if result.alternatives %}
+  <h3>{% if result.found %}Other possible causes{% else %}Possible areas to check{% endif %}</h3>
+  <ul class="alt-list">
+    {% for cause in result.alternatives %}<li>{{ cause }}</li>{% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if result.found %}
+  <details class="rule-box">
+    <summary>Show the IF–THEN rule used ({{ result.rule_id }})</summary>
+    <code>{{ result.rule_text }}</code>
+  </details>
+  {% endif %}
+
+  <details class="rule-box">
+    <summary>Show rule evaluation (forward chaining)</summary>
+    <ul class="trace">
+      {% for t in result.trace %}
+      <li><span>{{ t.id }}</span> <span class="pill pill-trace-{{ t.status|replace('_', '-') }}">{{ t.status|replace('_', ' ') }}</span></li>
+      {% endfor %}
+    </ul>
+    <p class="small-note">fired = all conditions matched &middot; ruled out = a condition did not match &middot; possible = not enough answers yet</p>
+  </details>
+</section>
+
+<p class="disclaimer">{{ result.disclaimer }}</p>
+
+<div class="result-actions">
+  <form method="post" action="{{ url_for('restart') }}">
+    <button type="submit" class="btn btn-primary">Start another diagnosis</button>
+  </form>
+  <form method="post" action="{{ url_for('back') }}">
+    <button type="submit" class="btn btn-ghost">← Change my last answer</button>
+  </form>
+</div>
+{% endblock %}

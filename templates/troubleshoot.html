@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.title }} - {{ app_title }}{% endblock %}
+
+{% block content %}
+<section class="panel question-panel">
+  <p class="eyebrow"><span aria-hidden="true">{{ category.icon }}</span> {{ category.title }}</p>
+  <p class="step-label">Question {{ number }}</p>
+  <h2 class="question">{{ question.text }}</h2>
+
+  <form method="post" action="{{ url_for('answer') }}" id="answer-form">
+    <input type="hidden" name="question_id" value="{{ question.id }}">
+    <div class="answer-buttons">
+      <button type="submit" name="answer" value="yes" class="btn btn-yes" data-key="y">✔ Yes</button>
+      <button type="submit" name="answer" value="no" class="btn btn-no" data-key="n">✖ No</button>
+      <button type="submit" name="answer" value="unsure" class="btn btn-unsure" data-key="u">? Not sure</button>
+    </div>
+  </form>
+  <p class="small-note hint-keys">Tip: you can also press <kbd>Y</kbd>, <kbd>N</kbd>, or <kbd>U</kbd>.</p>
+
+  <div class="nav-actions">
+    <form method="post" action="{{ url_for('back') }}">
+      <button type="submit" class="btn btn-ghost">← Back</button>
+    </form>
+    <form method="post" action="{{ url_for('restart') }}">
+      <button type="submit" class="btn btn-ghost">↻ Restart</button>
+    </form>
+  </div>
+</section>
+
+{% if history %}
+<section class="panel panel-light">
+  <h3>Your answers so far</h3>
+  <ol class="history">
+    {% for item in history %}
+    <li>
+      <span>{{ item.question }}</span>
+      <strong class="pill pill-{{ item.answer|lower|replace(' ', '-') }}">{{ item.answer }}</strong>
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+{% endif %}
+{% endblock %}
